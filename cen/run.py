@@ -1,3 +1,17 @@
+#  Copyright 2020 Maruan Al-Shedivat. All Rights Reserved.
+#
+#  Licensed under the Apache License, Version 2.0 (the "License");
+#  you may not use this file except in compliance with the License.
+#  You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+#  Unless required by applicable law or agreed to in writing, software
+#  distributed under the License is distributed on an "AS IS" BASIS,
+#  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+#  See the License for the specific language governing permissions and
+#  limitations under the License.
+#  =============================================================================
 """Entry point for running experiments."""
 
 import hydra
@@ -10,7 +24,7 @@ import numpy as np
 import tensorflow as tf
 
 from . import data
-from .experiment import train, evaluate, infer, cross_validate
+from .experiment import train, evaluate, cross_validate
 
 logger = logging.getLogger(__name__)
 
@@ -41,36 +55,6 @@ def main(cfg):
         save_path = os.path.join(os.getcwd(), "cv.metrics.pkl")
         with open(save_path, "wb") as fp:
             pickle.dump(metrics, fp)
-
-    # Semi-supervised training (label propagation).
-    elif cfg.semi:
-        model = None
-        # Train.
-        if cfg.train:
-            histories = []
-            train_dataset = datasets["train"]
-            for i in range(cfg.semi.iterations):
-                # Train on supervised + (re-labeled) unsupervised data.
-                if datasets["unsup"][1] is not None:
-                    train_dataset = data.merge(
-                        datasets,
-                        set_names=("train", "unsup"),
-                        weights=(1.0, cfg.semi.unsup_weight),
-                    )
-                model, info = train(cfg, train_dataset, datasets["valid"])
-                histories.append(info["history"])
-                # Re-label unsupervised data.
-                predictions_unsup = infer(cfg, datasets, info=info)
-                datasets["unsup"] = datasets["unsup"][0], predictions_unsup
-            save_path = os.path.join(os.getcwd(), "train.history.pkl")
-            with open(save_path, "wb") as fp:
-                pickle.dump(histories, fp)
-        # Evaluate.
-        if cfg.eval:
-            metrics = evaluate(cfg, datasets, model=model)
-            save_path = os.path.join(os.getcwd(), "eval.metrics.pkl")
-            with open(save_path, "wb") as fp:
-                pickle.dump(metrics, fp)
 
     # Supervised training.
     else:

@@ -1,3 +1,5 @@
+"""Loader and preprocessors for Fashion MNIST data."""
+
 #  Copyright 2020 Maruan Al-Shedivat. All Rights Reserved.
 #
 #  Licensed under the Apache License, Version 2.0 (the "License");
@@ -12,14 +14,12 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 #  =============================================================================
-"""Loader and preprocessors for MNIST data."""
 
 import logging
 import os
 
 import numpy as np
 
-from tensorflow.python.keras.datasets import mnist
 from tensorflow.python.keras.utils import np_utils
 
 from . import utils
@@ -32,26 +32,31 @@ IMG_ROWS, IMG_COLS, IMG_CHANNELS = 28, 28, 1
 NB_CLASSES = 10
 
 
-def load_data(datapath=None, standardize=False, padding=None, order=None):
-    """Load MNIST data.
+def load_data(
+    datapath=None, standardize=False, padding=None, permute=False, seed=42
+):
+    """Load FASHION MNIST data.
 
     Args:
         datapath: str or None (default: None)
         padding: tuple of int or None (default: None)
-        order: np.ndarray (default: None)
+        permute: bool (default: False)
+        seed: uint (default: 42)
 
     Returns:
-        data: tuples (X, y) of ndarrays
+        data: tuples (X, y) of nd.arrays
     """
     if datapath is None:
-        datapath = "$DATA_PATH/MNIST/mnist.npz"
+        datapath = "$DATA_PATH/FASHION_MNIST/data.npz"
     datapath = os.path.expandvars(datapath)
 
     # the data, shuffled and split between train and test sets
-    (X_train, y_train), (X_test, y_test) = mnist.load_data(datapath)
+    data = np.load(datapath)
+    X_train, y_train = data["x_train"], data["y_train"]
+    X_test, y_test = data["x_test"], data["y_test"]
 
-    X_train = X_train.astype(np.float32)
-    X_test = X_test.astype(np.float32)
+    X_train = X_train.astype("float32")
+    X_test = X_test.astype("float32")
     X_train /= 255
     X_test /= 255
 
@@ -63,7 +68,9 @@ def load_data(datapath=None, standardize=False, padding=None, order=None):
         X_test -= X_mean
         X_test /= X_std
 
-    if order is not None:
+    if permute:
+        rng = np.random.RandomState(seed)
+        order = rng.permutation(len(X_train))
         X_train = X_train[order]
         y_train = y_train[order]
 
@@ -97,12 +104,12 @@ def load_data(datapath=None, standardize=False, padding=None, order=None):
             X_test, pad_width=pad_width, mode="constant", constant_values=0.0
         )
 
-    # Reshape.
+    # Reshape
     X_train = X_train.reshape(TRAIN_SIZE, *input_shape)
     X_valid = X_valid.reshape(VALID_SIZE, *input_shape)
     X_test = X_test.reshape(TEST_SIZE, *input_shape)
 
-    # Convert class vectors to binary class matrices.
+    # convert class vectors to binary class matrices
     Y_train = np_utils.to_categorical(y_train, NB_CLASSES)
     Y_valid = np_utils.to_categorical(y_valid, NB_CLASSES)
     Y_test = np_utils.to_categorical(y_test, NB_CLASSES)
@@ -119,41 +126,41 @@ def load_data(datapath=None, standardize=False, padding=None, order=None):
 def load_interp_features(
     datapath=None,
     feature_type="pixels16x16",
-    feature_subset_ratio=None,
+    feature_subset_per=None,
     remove_const_features=True,
     standardize=True,
     whiten=False,
-    order=None,
+    permute=True,
     signal_to_noise=None,
+    seed=42,
 ):
-    """Load an interpretable representation for MNIST.
+    """Load an interpretable representation for FASHION MNIST.
 
     Args:
         datapath: str or None (default: None)
         feature_type: str (default: 'pixels16x16')
             Possible values are:
             {'pixels16x16', 'pixels20x20', 'pixels28x28', 'hog3x3'}.
-        feature_subset_ratio: float (default: None)
-        remove_const_features: bool (default: True)
         standardize: bool (default: True)
         whiten: bool (default: False)
-        order: np.ndarray (default: None)
+        permute: bool (default: True)
         signal_to_noise: float or None (default: None)
             If not None, adds white noise to each feature with a specified SNR.
+        seed: uint (default: 42)
 
     Returns:
-        data: tuple of (Z_train, Z_valid, Z_test) ndarrays
+        data: tuple (Z_train, Z_valid, Z_test) of nd.arrays
     """
     if datapath is None:
-        datapath = "$DATA_PATH/MNIST/mnist.interp.%s.npz" % feature_type
+        datapath = "$DATA_PATH/FASHION_MNIST/feat.interp.%s.npz" % feature_type
     datapath = os.path.expandvars(datapath)
 
     data = np.load(datapath)
     Z_train, Z_test = data["Z_train"], data["Z_test"]
-    Z_train = Z_train.astype(np.float32)
-    Z_test = Z_test.astype(np.float32)
 
     if feature_type.startswith("pixels"):
+        Z_train = Z_train.astype("float32")
+        Z_test = Z_test.astype("float32")
         Z_train /= 255
         Z_test /= 255
 
@@ -180,13 +187,15 @@ def load_interp_features(
         Z_train = utils.zca_whiten(Z_train, WM)
         Z_test = utils.zca_whiten(Z_test, WM)
 
-    if order is not None:
+    if permute:
+        rng = np.random.RandomState(seed)
+        order = rng.permutation(len(Z_train))
         Z_train = Z_train[order]
 
-    if feature_subset_ratio is not None:
-        assert feature_subset_ratio > 0.0 and feature_subset_ratio <= 1.0
-        feature_subset_size = int(Z_train.shape[1] * feature_subset_ratio)
-        rng = np.random
+    if feature_subset_per is not None:
+        assert feature_subset_per > 0.0 and feature_subset_per <= 1.0
+        feature_subset_size = int(Z_train.shape[1] * feature_subset_per)
+        rng = np.random.RandomState(seed)
         feature_idx = rng.choice(
             Z_train.shape[1], size=feature_subset_size, replace=False
         )
@@ -194,9 +203,13 @@ def load_interp_features(
         Z_test = Z_test[:, feature_idx]
 
     if signal_to_noise is not None and signal_to_noise > 0.0:
-        rng = np.random
-        N_train = rng.normal(scale=1.0 / signal_to_noise, size=Z_train.shape)
-        N_test = rng.normal(scale=1.0 / signal_to_noise, size=Z_test.shape)
+        rng = np.random.RandomState(seed)
+        N_train = np.random.normal(
+            scale=1.0 / signal_to_noise, size=Z_train.shape
+        )
+        N_test = np.random.normal(
+            scale=1.0 / signal_to_noise, size=Z_test.shape
+        )
         Z_train += N_train
         Z_test += N_test
 
