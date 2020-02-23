@@ -1,0 +1,6 @@
+optimizer:
+  class_name: adam
+  config:
+    amsgrad: true
+    learning_rate: 3e-3
+    decay: 1e-4

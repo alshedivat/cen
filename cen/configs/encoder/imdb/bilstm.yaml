@@ -1,0 +1,14 @@
+network:
+  name: bilstm
+  emb_use: true
+  emb_dropout: 0.5
+  emb_input_dim: 30522
+  emb_output_dim: 1024
+  emb_mask_zero: false
+  lstm_blocks: 1
+  lstm_units: 256
+  lstm_bidirectional: true
+  lstm_pre_dropout: 0.25
+  lstm_post_dropout: 0.
+  lstm_pooling: max
+  lstm_self_attention: false

@@ -1,0 +1,21 @@
+train:
+  loss: ???
+  batch_size: ???
+  epochs: ???
+  checkpoint_kwargs:
+    monitor: "val_loss"
+    save_best_only: true
+    save_weights_only: true
+    verbose: true
+  shuffle_buffer_size: 4096
+  tensorboard:
+    histogram_freq: 1
+    write_graph: false
+    write_images: false
+    update_freq: batch
+  verbose: 1
+
+eval:
+  batch_size: ${train.batch_size}
+  metrics: ???
+  verbose: 1

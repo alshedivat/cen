@@ -1,0 +1,25 @@
+dataset:
+  feature_kwargs:
+    feature_type: hog3x3
+
+model:
+  name: cen
+  kwargs:
+    explainer_name: convex
+    explainer_kwargs:
+      dict_size: 128
+      use_bias: true
+      kernel_regularizer:
+        class_name: l1_l2
+        config:
+          l1: 1e-4
+          l2: 1e-5
+      dict_kernel_regularizer:
+        class_name: l1_l2
+        config:
+          l1: 1e-4
+          l2: 1e-5
+    top_dense_layers: 1
+    top_dense_units: 256
+    top_dense_activation: relu
+    top_dense_dropout: 0.5
