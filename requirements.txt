@@ -1,0 +1,7 @@
+hydra-core
+numpy
+pandas
+scipy
+scikit-learn
+tensorflow>=2.0.0
+transformers
