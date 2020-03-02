@@ -21,12 +21,13 @@ from tensorflow.python.framework import tensor_shape
 from tensorflow.python.keras import activations
 from tensorflow.python.keras import constraints
 from tensorflow.python.keras import initializers
-from tensorflow.python.keras import regularizers
 
 from tensorflow.python.keras import backend as K
 from tensorflow.python.keras.layers import Dense
 from tensorflow.python.keras.layers import InputSpec
 from tensorflow.python.keras.layers import Layer
+
+from .. import regularizers
 
 __all__ = ["ContextualDense", "ContextualAffineDense", "ContextualConvexDense"]
 
@@ -45,6 +46,7 @@ class ContextualDense(Layer):
         activation=None,
         use_bias=True,
         activity_regularizer=None,
+        entropy_regularizer=None,
         kernel_regularizer=None,
         bias_regularizer=None,
         kernel_constraint=None,
@@ -62,6 +64,7 @@ class ContextualDense(Layer):
         self.regularizers = {
             "kernels": regularizers.get(kernel_regularizer),
             "biases": regularizers.get(bias_regularizer),
+            "entropy": regularizers.get(entropy_regularizer),
         }
         self.constraints = {
             "kernels": constraints.get(kernel_constraint),
@@ -123,12 +126,15 @@ class ContextualDense(Layer):
 
     def contextual_dense_outputs(self, contextual_weights, features):
         """Computes contextual outputs."""
+        # <float32> [batch_size, units].
         outputs = tf.einsum(
             "ijk,ij->ik", contextual_weights["kernels"], features
         )
-        if self.use_bias:
+        if "biases" in contextual_weights:
+            # <float32> [batch_size, units].
             outputs = tf.add(outputs, contextual_weights["biases"])
         if self.activation is not None:
+            # <float32> [batch_size, units].
             outputs = self.activation(outputs)
         return outputs
 
@@ -143,12 +149,21 @@ class ContextualDense(Layer):
         contextual_weights = self.generate_contextual_weights(context)
 
         # Add regularizers.
-        for name in ["kernels", "biases"]:
+        for name in contextual_weights.keys():
             if self.regularizers[name] is not None:
                 self.add_loss(self.regularizers[name](contextual_weights[name]))
 
         # Compute outputs: <float32> [batch_size, units].
-        return self.contextual_dense_outputs(contextual_weights, features)
+        outputs = self.contextual_dense_outputs(contextual_weights, features)
+
+        # Add entropy regularization.
+        if self.regularizers["entropy"] is not None:
+            ent_loss = self.regularizers["entropy"](
+                (contextual_weights, features, outputs)
+            )
+            self.add_loss(ent_loss, inputs=inputs)
+
+        return outputs
 
     def compute_output_shape(self, input_shape):
         input_shapes = dict(zip(["context", "features"], input_shape))
@@ -170,6 +185,9 @@ class ContextualDense(Layer):
             "use_bias": self.use_bias,
             "activity_regularizer": regularizers.serialize(
                 self.activity_regularizer
+            ),
+            "entropy_regularizer": regularizers.serialize(
+                self.regularizers["entropy"],
             ),
             "kernel_regularizer": regularizers.serialize(
                 self.regularizers["kernels"]

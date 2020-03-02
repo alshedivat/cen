@@ -16,7 +16,7 @@ train:
   loss:
     name: categorical_crossentropy
   batch_size: 64
-  epochs: 10
+  epochs: 2
 
 eval:
   metrics:

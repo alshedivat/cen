@@ -3,7 +3,7 @@ train:
   batch_size: ???
   epochs: ???
   checkpoint_kwargs:
-    monitor: "val_loss"
+    monitor: "val_categorical_accuracy"
     save_best_only: true
     save_weights_only: true
     verbose: true

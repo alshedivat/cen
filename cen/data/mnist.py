@@ -107,13 +107,19 @@ def load_data(datapath=None, standardize=False, padding=None, order=None):
     Y_valid = np_utils.to_categorical(y_valid, NB_CLASSES)
     Y_test = np_utils.to_categorical(y_test, NB_CLASSES)
 
+    data = {
+        "train": ({"C": X_train}, Y_train),
+        "valid": ({"C": X_valid}, Y_valid),
+        "test": ({"C": X_test}, Y_test),
+    }
+
     logger.debug(f"X shape: {X_train.shape[1:]}")
     logger.debug(f"Y shape: {y_train.shape[1:]}")
     logger.debug(f"{len(X_train)} train samples")
     logger.debug(f"{len(X_valid)} validation samples")
     logger.debug(f"{len(X_test)} test samples")
 
-    return (X_train, Y_train), (X_valid, Y_valid), (X_test, Y_test)
+    return data
 
 
 def load_interp_features(
@@ -209,9 +215,15 @@ def load_interp_features(
     assert Z_valid.shape[0] == VALID_SIZE
     assert Z_test.shape[0] == TEST_SIZE
 
+    data = {
+        "train": Z_train,
+        "valid": Z_valid,
+        "test": Z_test,
+    }
+
     logger.debug(f"Z shape: {Z_train.shape[1:]}")
     logger.debug(f"{Z_train.shape[0]} train samples")
     logger.debug(f"{Z_valid.shape[0]} validation samples")
     logger.debug(f"{Z_test.shape[0]} test samples")
 
-    return Z_train, Z_valid, Z_test
+    return data

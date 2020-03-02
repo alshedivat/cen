@@ -83,7 +83,7 @@ def load(
     # Merge train and valid, if necessary.
     if merge_train_valid:
         data["train"] = merge(data, ("train", "valid"))
-        data["valid"] = data["test"]
+        data["valid"] = None
 
     return data
 
