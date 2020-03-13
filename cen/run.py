@@ -23,8 +23,8 @@ import random
 import numpy as np
 import tensorflow as tf
 
-from . import data
-from .experiment import train, evaluate, cross_validate
+from cen import data
+from cen.experiment import train, evaluate, cross_validate
 
 logger = logging.getLogger(__name__)
 

@@ -1,4 +1,4 @@
-hydra-core
+hydra-core>=0.11,<1.0
 numpy
 pandas
 scipy

@@ -13,11 +13,11 @@
 #  limitations under the License.
 #  =============================================================================
 
-from . import densenet
-from . import resnet
-from . import rnn
-from . import simple
-from . import vgg16
+from cen.networks import densenet
+from cen.networks import resnet
+from cen.networks import rnn
+from cen.networks import simple
+from cen.networks import vgg16
 
 
 def get(name, **kwargs):

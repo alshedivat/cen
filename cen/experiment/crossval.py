@@ -21,9 +21,9 @@ import numpy as np
 from collections import defaultdict
 from sklearn.model_selection import StratifiedKFold
 
-from .. import data
-from .train import train
-from .eval import evaluate
+from cen import data
+from cen.experiment.train import train
+from cen.experiment.eval import evaluate
 
 logger = logging.getLogger(__name__)
 

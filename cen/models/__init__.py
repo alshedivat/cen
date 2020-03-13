@@ -13,9 +13,9 @@
 #  limitations under the License.
 #  =============================================================================
 
-from . import baseline
-from . import cen
-from . import moe
+from cen.models import baseline
+from cen.models import cen
+from cen.models import moe
 
 
 def get(name, **kwargs):

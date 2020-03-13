@@ -16,9 +16,7 @@
 
 import logging
 
-import tensorflow as tf
-
-from . import utils
+from cen.experiment import utils
 
 logger = logging.getLogger(__name__)
 

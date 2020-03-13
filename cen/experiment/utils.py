@@ -18,10 +18,10 @@ import os
 
 import tensorflow as tf
 
-from .. import losses
-from .. import metrics
-from .. import models
-from .. import networks
+from cen import losses
+from cen import metrics
+from cen import models
+from cen import networks
 
 
 class ModeKeys(object):

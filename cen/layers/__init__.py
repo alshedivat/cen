@@ -15,8 +15,8 @@
 
 import omegaconf
 
-from . import contextual_dense
-from . import contextual_mixture
+from cen.layers import contextual_dense
+from cen.layers import contextual_mixture
 
 
 def get_contextual(name, **kwargs):

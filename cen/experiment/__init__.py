@@ -13,6 +13,6 @@
 #  limitations under the License.
 #  =============================================================================
 
-from .crossval import cross_validate
-from .eval import evaluate
-from .train import train
+from cen.experiment.crossval import cross_validate
+from cen.experiment.eval import evaluate
+from cen.experiment.train import train
