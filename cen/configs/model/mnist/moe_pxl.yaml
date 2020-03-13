@@ -1,3 +1,7 @@
+dataset:
+  feature_kwargs:
+    feature_type: pixels20x20
+
 model:
   name: moe
   kwargs:
