@@ -160,3 +160,28 @@ class ContextualMixture(Layer):
 
     def compute_output_shape(self, input_shape):
         return self.experts[0].compute_output_shape(input_shape)
+
+    def get_config(self):
+        config = {
+            "gate_use_bias": self.gate_use_bias,
+            "gate_kernel_initializer": initializers.serialize(
+                self.gate_kernel_initializer
+            ),
+            "gate_bias_initializer": initializers.serialize(
+                self.gate_bias_initializer
+            ),
+            "gate_kernel_regularizer": regularizers.serialize(
+                self.gate_kernel_regularizer
+            ),
+            "gate_bias_regularizer": regularizers.serialize(
+                self.gate_bias_regularizer
+            ),
+            "gate_kernel_constraint": regularizers.serialize(
+                self.gate_kernel_constraint
+            ),
+            "gate_bias_constraint": regularizers.serialize(
+                self.gate_bias_constraint
+            ),
+        }
+        base_config = super(ContextualMixture, self).get_config()
+        return dict(list(base_config.items()) + list(config.items()))

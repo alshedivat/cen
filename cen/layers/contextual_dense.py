@@ -449,7 +449,7 @@ class ContextualConvexDense(ContextualDense):
             "dict_bias_regularizer": regularizers.serialize(
                 self.dict_bias_regularizer
             ),
-            "dict_kernel_constrain": regularizers.serialize(
+            "dict_kernel_constraint": regularizers.serialize(
                 self.dict_kernel_constraint
             ),
             "dict_bias_constraint": regularizers.serialize(
