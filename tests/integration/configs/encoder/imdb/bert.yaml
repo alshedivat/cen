@@ -1,0 +1,5 @@
+network:
+  name: bert
+  dropout: 0.5
+  freeze_weights: true
+  pretrained_weights: bert-base-uncased

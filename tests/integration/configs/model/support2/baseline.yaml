@@ -1,0 +1,8 @@
+model:
+  name: baseline
+  kwargs:
+    output_activation: linear
+    top_dense_layers: 0
+
+dataset:
+  feature_kwargs: null

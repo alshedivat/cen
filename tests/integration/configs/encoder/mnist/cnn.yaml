@@ -1,0 +1,5 @@
+network:
+  name: simple_cnn
+  blocks: 1
+  filters: 64
+  dropout: 0.2

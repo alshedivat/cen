@@ -1,0 +1,35 @@
+dataset:
+  name: physionet
+  context_kwargs:
+    task: survival
+    interval_len: 1
+    nb_intervals: 60
+    maxlen: -1
+    fill_na: avg
+    na_value: 0.0
+  feature_kwargs:
+    task: survival
+    maxlen: -1
+    fill_na: avg
+    na_value: 0.0
+  max_train_size: null
+  permute: true
+
+train:
+  loss:
+    name: nll_survival
+    censored_indicator: 1.0
+  batch_size: 64
+  epochs: 10
+
+eval:
+  metrics:
+    survival_acc_at_25:
+      name: survival_accuracy_score
+      time_step: 1
+    survival_acc_at_50:
+      name: survival_accuracy_score
+      time_step: 7
+    survival_acc_at_75:
+      name: survival_accuracy_score
+      time_step: 32

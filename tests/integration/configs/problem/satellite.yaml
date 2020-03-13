@@ -1,0 +1,25 @@
+dataset:
+  name: satellite
+  context_kwargs:
+    survey: LSMS
+    country: uganda
+    standardize: true
+  feature_kwargs:
+    survey: LSMS
+    country: uganda
+    standardize: true
+  max_train_size: null
+  permute: true
+
+train:
+  loss:
+    name: categorical_crossentropy
+  batch_size: 64
+  epochs: 20
+
+eval:
+  metrics:
+    acc:
+      name: categorical_accuracy
+    auc:
+      name: AUC

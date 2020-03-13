@@ -1,0 +1,27 @@
+dataset:
+  feature_kwargs:
+    feature_type: BoW
+    bow_vocab_size: 1000
+  merge_train_valid: true
+
+model:
+  name: cen
+  kwargs:
+    explainer_name: convex
+    explainer_kwargs:
+      dict_size: 32
+      use_bias: true
+      kernel_regularizer:
+        class_name: l1_l2
+        config:
+          l1: 1e-5
+          l2: 0.
+      dict_kernel_regularizer:
+        class_name: l1_l2
+        config:
+          l1: 1e-5
+          l2: 1e-6
+    top_dense_layers: 1
+    top_dense_units: 256
+    top_dense_activation: relu
+    top_dense_dropout: 0.5

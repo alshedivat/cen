@@ -1,0 +1,17 @@
+crossval:
+  splits: 5
+  shuffle: true
+  seed: 42
+  verbose: 1
+
+train:
+  loss: ???
+  batch_size: ???
+  epochs: ???
+  tensorboard: true
+  verbose: 0
+
+eval:
+  batch_size: ${train.batch_size}
+  metrics: ???
+  verbose: 0
