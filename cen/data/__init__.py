@@ -15,12 +15,12 @@
 
 import numpy as np
 
-from . import fashion_mnist
-from . import imdb
-from . import mnist
-from . import physionet
-from . import satellite
-from . import support2
+from cen.data import fashion_mnist
+from cen.data import imdb
+from cen.data import mnist
+from cen.data import physionet
+from cen.data import satellite
+from cen.data import support2
 
 
 def load(
@@ -76,9 +76,12 @@ def load(
 
     # Limit the size of the training set, if necessary.
     if max_train_size is not None:
-        for key, value in data["train"][0].items():
-            data["train"][0][key] = value[:max_train_size]
-        data["train"][1] = data["train"][1][:max_train_size]
+        inputs = {
+            key: value[:max_train_size]
+            for key, value in data["train"][0].items()
+        }
+        labels = data["train"][1][:max_train_size]
+        data["train"] = inputs, labels
 
     # Merge train and valid, if necessary.
     if merge_train_valid:

@@ -16,17 +16,19 @@
 
 import logging
 import os
+import urllib.request
 
 import numpy as np
 
 from tensorflow.python.keras.datasets import mnist
 from tensorflow.python.keras.utils import np_utils
 
-from . import utils
+from cen.data import utils
 
 logger = logging.getLogger(__name__)
 
 # Data parameters
+URL = "http://www.cs.cmu.edu/~mshediva/data/mnist/"
 TRAIN_SIZE, VALID_SIZE, TEST_SIZE = 50000, 10000, 10000
 IMG_ROWS, IMG_COLS, IMG_CHANNELS = 28, 28, 1
 NB_CLASSES = 10
@@ -46,6 +48,11 @@ def load_data(datapath=None, standardize=False, padding=None, order=None):
     if datapath is None:
         datapath = "$DATA_PATH/MNIST/mnist.npz"
     datapath = os.path.expandvars(datapath)
+
+    # Fetch data if necessary.
+    if not os.path.exists(datapath):
+        url = URL + f"mnist.npz"
+        urllib.request.urlretrieve(url, datapath)
 
     # the data, shuffled and split between train and test sets
     (X_train, y_train), (X_test, y_test) = mnist.load_data(datapath)
@@ -148,11 +155,16 @@ def load_interp_features(
             If not None, adds white noise to each feature with a specified SNR.
 
     Returns:
-        data: tuple of (Z_train, Z_valid, Z_test) ndarrays
+        data: dict with "train", "valid", and "test" ndarrays.
     """
     if datapath is None:
-        datapath = "$DATA_PATH/MNIST/mnist.interp.%s.npz" % feature_type
+        datapath = f"$DATA_PATH/MNIST/mnist.interp.{feature_type}.npz"
     datapath = os.path.expandvars(datapath)
+
+    # Fetch data if necessary.
+    if not os.path.exists(datapath):
+        url = URL + f"mnist.interp.{feature_type}.npz"
+        urllib.request.urlretrieve(url, datapath)
 
     data = np.load(datapath)
     Z_train, Z_test = data["Z_train"], data["Z_test"]
