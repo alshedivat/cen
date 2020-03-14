@@ -58,9 +58,6 @@ def get_hydra():
 def test_mnist(model):
 
     with tempfile.TemporaryDirectory() as dir_path:
-        # Change working directory.
-        os.chdir(dir_path)
-
         # Set data path.
         os.environ["DATA_PATH"] = dir_path
         mnist_dir = os.path.join(dir_path, "MNIST")
@@ -80,8 +77,8 @@ def test_mnist(model):
                 f"train.batch_size=128",
                 f"train.checkpoint_kwargs=null",
                 f"train.tensorboard=null",
-                "train.verbose=2",
-                "eval.verbose=2",
+                "train.verbose=0",
+                "eval.verbose=0",
             ],
             strict=False
         )

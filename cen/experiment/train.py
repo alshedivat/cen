@@ -70,7 +70,7 @@ def train(cfg, train_data, validation_data=None):
     info["history"] = history.history
 
     checkpoint_path = os.path.join(os.getcwd(), "checkpoint")
-    if not os.path.exists(checkpoint_path):
+    if cfg.train.checkpoint_kwargs is None:
         # Save model weights if checkpointing was off.
         model.save_weights(checkpoint_path)
     else:

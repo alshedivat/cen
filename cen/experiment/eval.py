@@ -28,13 +28,14 @@ def evaluate(cfg, datasets, model=None):
         input_dtypes = utils.get_input_dtypes(datasets["test"])
         input_shapes = utils.get_input_shapes(datasets["test"])
         output_shape = utils.get_output_shape(datasets["test"])
-        model = utils.build(
-            cfg,
-            input_dtypes=input_dtypes,
-            input_shapes=input_shapes,
-            output_shape=output_shape,
-            mode=utils.ModeKeys.EVAL,
-        )
+        if model is None:
+            model = utils.build(
+                cfg,
+                input_dtypes=input_dtypes,
+                input_shapes=input_shapes,
+                output_shape=output_shape,
+                mode=utils.ModeKeys.EVAL,
+            )
 
     logger.info("Evaluating...")
 
