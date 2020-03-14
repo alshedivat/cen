@@ -66,4 +66,6 @@ def build_model(
     # Create a Keras model.
     model = tf.keras.models.Model(inputs=(context, features), outputs=outputs)
 
-    return model
+    info = {"context": context, "encodings": encodings}
+
+    return model, info

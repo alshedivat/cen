@@ -22,7 +22,7 @@ import numpy as np
 
 from tensorflow.python.keras.utils import np_utils
 
-from . import utils
+from cen.data import utils
 
 logger = logging.getLogger(__name__)
 
@@ -114,25 +114,30 @@ def load_data(
     Y_valid = np_utils.to_categorical(y_valid, NB_CLASSES)
     Y_test = np_utils.to_categorical(y_test, NB_CLASSES)
 
+    data = {
+        "train": ({"C": X_train}, Y_train),
+        "valid": ({"C": X_valid}, Y_valid),
+        "test": ({"C": X_test}, Y_test),
+    }
+
     logger.debug(f"X shape: {X_train.shape[1:]}")
     logger.debug(f"Y shape: {y_train.shape[1:]}")
     logger.debug(f"{len(X_train)} train samples")
     logger.debug(f"{len(X_valid)} validation samples")
     logger.debug(f"{len(X_test)} test samples")
 
-    return (X_train, Y_train), (X_valid, Y_valid), (X_test, Y_test)
+    return data
 
 
 def load_interp_features(
     datapath=None,
     feature_type="pixels16x16",
-    feature_subset_per=None,
+    feature_subset_ratio=None,
     remove_const_features=True,
     standardize=True,
     whiten=False,
-    permute=True,
+    order=None,
     signal_to_noise=None,
-    seed=42,
 ):
     """Load an interpretable representation for FASHION MNIST.
 
@@ -141,15 +146,16 @@ def load_interp_features(
         feature_type: str (default: 'pixels16x16')
             Possible values are:
             {'pixels16x16', 'pixels20x20', 'pixels28x28', 'hog3x3'}.
+        feature_subset_ratio: float (default: None)
+        remove_const_features: bool (default: True)
         standardize: bool (default: True)
         whiten: bool (default: False)
-        permute: bool (default: True)
+        order: np.ndarray (default: None)
         signal_to_noise: float or None (default: None)
             If not None, adds white noise to each feature with a specified SNR.
-        seed: uint (default: 42)
 
     Returns:
-        data: tuple (Z_train, Z_valid, Z_test) of nd.arrays
+        data: dict with "train", "valid", and "test" ndarrays.
     """
     if datapath is None:
         datapath = "$DATA_PATH/FASHION_MNIST/feat.interp.%s.npz" % feature_type
@@ -187,15 +193,13 @@ def load_interp_features(
         Z_train = utils.zca_whiten(Z_train, WM)
         Z_test = utils.zca_whiten(Z_test, WM)
 
-    if permute:
-        rng = np.random.RandomState(seed)
-        order = rng.permutation(len(Z_train))
+    if order is not None:
         Z_train = Z_train[order]
 
-    if feature_subset_per is not None:
-        assert feature_subset_per > 0.0 and feature_subset_per <= 1.0
-        feature_subset_size = int(Z_train.shape[1] * feature_subset_per)
-        rng = np.random.RandomState(seed)
+    if feature_subset_ratio is not None:
+        assert feature_subset_ratio > 0.0 and feature_subset_ratio <= 1.0
+        feature_subset_size = int(Z_train.shape[1] * feature_subset_ratio)
+        rng = np.random
         feature_idx = rng.choice(
             Z_train.shape[1], size=feature_subset_size, replace=False
         )
@@ -203,13 +207,9 @@ def load_interp_features(
         Z_test = Z_test[:, feature_idx]
 
     if signal_to_noise is not None and signal_to_noise > 0.0:
-        rng = np.random.RandomState(seed)
-        N_train = np.random.normal(
-            scale=1.0 / signal_to_noise, size=Z_train.shape
-        )
-        N_test = np.random.normal(
-            scale=1.0 / signal_to_noise, size=Z_test.shape
-        )
+        rng = np.random
+        N_train = rng.normal(scale=1.0 / signal_to_noise, size=Z_train.shape)
+        N_test = rng.normal(scale=1.0 / signal_to_noise, size=Z_test.shape)
         Z_train += N_train
         Z_test += N_test
 
@@ -222,9 +222,15 @@ def load_interp_features(
     assert Z_valid.shape[0] == VALID_SIZE
     assert Z_test.shape[0] == TEST_SIZE
 
+    data = {
+        "train": Z_train,
+        "valid": Z_valid,
+        "test": Z_test,
+    }
+
     logger.debug(f"Z shape: {Z_train.shape[1:]}")
     logger.debug(f"{Z_train.shape[0]} train samples")
     logger.debug(f"{Z_valid.shape[0]} validation samples")
     logger.debug(f"{Z_test.shape[0]} test samples")
 
-    return Z_train, Z_valid, Z_test
+    return data

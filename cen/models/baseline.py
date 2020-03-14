@@ -51,4 +51,6 @@ def build_model(
     # Create a Keras model.
     model = tf.keras.models.Model(inputs=inputs, outputs=outputs)
 
-    return model
+    info = {}
+
+    return model, info

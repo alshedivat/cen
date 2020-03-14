@@ -30,7 +30,7 @@ from cen.experiment import train, evaluate
 
 logger = logging.getLogger(__name__)
 
-AVAILABLE_MODELS = {
+AVAILABLE_MODELS = [
     "baseline",
     "cen_convex_hog",
     "cen_convex_pxl",
@@ -38,7 +38,7 @@ AVAILABLE_MODELS = {
     "cen_affine_pxl",
     "moe_hog",
     "moe_pxl",
-}
+]
 
 
 def get_hydra():
@@ -62,6 +62,7 @@ def test_mnist(model):
         os.environ["DATA_PATH"] = dir_path
         mnist_dir = os.path.join(dir_path, "MNIST")
         os.makedirs(mnist_dir, exist_ok=False)
+
         # Parse hydra configs.
         hydra = get_hydra()
         cfg = hydra.compose_config(
@@ -72,7 +73,6 @@ def test_mnist(model):
                 f"encoder=mnist/cnn",
                 f"model=mnist/{model}",
                 f"optimizer=adam",
-                f"dataset.max_train_size=1024",
                 f"train.epochs=1",
                 f"train.batch_size=128",
                 f"train.checkpoint_kwargs=null",
@@ -82,13 +82,26 @@ def test_mnist(model):
             ],
             strict=False
         )
+
         # Set random seeds.
         random.seed(cfg.run.seed)
         np.random.seed(cfg.run.seed)
         tf.random.set_seed(cfg.run.seed)
 
+        # Load datasets.
         logger.info("Loading data...")
         datasets = data.load(**cfg.dataset)
+
+        # Truncate datasets.
+        max_sizes = {"train": 256, "valid": 128, "test": 128}
+        for set_name in ["train", "valid", "test"]:
+            max_size = max_sizes[set_name]
+            inputs = {
+                key: value[:max_size]
+                for key, value in datasets[set_name][0].items()
+            }
+            labels = datasets[set_name][1][:max_size]
+            datasets[set_name] = inputs, labels
 
         # Test train and eval.
         model, _ = train(cfg, datasets["train"], datasets["valid"])
