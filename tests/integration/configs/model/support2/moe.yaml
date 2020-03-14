@@ -1,9 +1,0 @@
-model:
-  name: moe
-  kwargs:
-    num_experts: 32
-    expert_kwargs:
-      activation: linear
-      use_bias: true
-    mixture_kwargs:
-      gate_use_bias: true

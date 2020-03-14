@@ -11,3 +11,7 @@ model:
       use_bias: true
     mixture_kwargs:
       gate_use_bias: true
+  top_dense_layers: 1
+  top_dense_units: 256
+  top_dense_activation: relu
+  top_dense_dropout: 0.5
