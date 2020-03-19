@@ -1,0 +1,14 @@
+dataset:
+  feature_kwargs:
+    feature_type: BoW
+    bow_vocab_size: 1000
+
+model:
+  name: moe
+  kwargs:
+    num_experts: 128
+    expert_kwargs:
+      activation: softmax
+      use_bias: true
+    mixture_kwargs:
+      gate_use_bias: true

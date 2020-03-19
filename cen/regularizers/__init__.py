@@ -17,6 +17,7 @@ from .basic import *
 from .entropy import *
 
 from tensorflow.python.keras import regularizers
+from tensorflow.python.keras.regularizers import serialize
 
 
 def get(config):

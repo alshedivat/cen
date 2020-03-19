@@ -15,8 +15,14 @@
 
 import tensorflow as tf
 
+from cen.metrics import survival
+
 
 def get(name, **kwargs):
+    if name == "survival_accuracy_score":
+        return survival.SurvivalAccuracyScore(**kwargs)
+    if name == "survival_brier_score":
+        return survival.SurvivalBrierScore(**kwargs)
     if kwargs:
         return tf.keras.metrics.get({"class_name": name, "config": kwargs})
     else:

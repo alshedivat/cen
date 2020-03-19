@@ -1,0 +1,16 @@
+dataset:
+  feature_kwargs:
+    feature_type: topics
+    topic_vocab_size: 40000
+    nb_topics: 200
+    extended: false
+
+model:
+  name: moe
+  kwargs:
+    num_experts: 128
+    expert_kwargs:
+      activation: softmax
+      use_bias: true
+    mixture_kwargs:
+      gate_use_bias: true

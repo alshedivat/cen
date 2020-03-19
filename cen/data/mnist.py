@@ -43,7 +43,7 @@ def load_data(datapath=None, standardize=False, padding=None, order=None):
         order: np.ndarray (default: None)
 
     Returns:
-        data: tuples (X, y) of ndarrays
+        data: dict of tuples (X, y) of ndarrays
     """
     if datapath is None:
         datapath = "$DATA_PATH/MNIST/mnist.npz"

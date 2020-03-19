@@ -1,16 +1,14 @@
 dataset:
   feature_kwargs:
-    feature_type: topics
-    topic_vocab_size: 40000
-    nb_topics: 200
-    extended: true
+    feature_type: BoW
+    bow_vocab_size: 1000
 
 model:
   name: cen
   kwargs:
-    explainer_name: convex
+    explainer_name: affine
     explainer_kwargs:
-      dict_size: 32
+      gen_use_bias: true
       use_bias: true
       entropy_regularizer:
         class_name: ctx_cond_neg_ent
@@ -21,13 +19,13 @@ model:
       kernel_regularizer:
         class_name: l1_l2
         config:
-          l1: 1e-4
+          l1: 1e-5
           l2: 0.
-      dict_kernel_regularizer:
+      gen_kernel_regularizer:
         class_name: l1_l2
         config:
-          l1: 1e-4
-          l2: 1e-5
+          l1: 1e-5
+          l2: 1e-6
     top_dense_layers: 1
     top_dense_units: 256
     top_dense_activation: relu

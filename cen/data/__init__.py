@@ -35,34 +35,38 @@ def load(
     if name == "mnist":
         load_data = mnist.load_data
         load_interp_features = mnist.load_interp_features
-        non_test_size = mnist.TRAIN_SIZE + mnist.VALID_SIZE
+        order_size = mnist.TRAIN_SIZE + mnist.VALID_SIZE
     elif name == "fashion_mnist":
         load_data = fashion_mnist.load_data
         load_interp_features = fashion_mnist.load_interp_features
-        non_test_size = fashion_mnist.TRAIN_SIZE + fashion_mnist.VALID_SIZE
+        order_size = fashion_mnist.TRAIN_SIZE + fashion_mnist.VALID_SIZE
     elif name == "imdb":
         load_data = imdb.load_data
         load_interp_features = imdb.load_interp_features
-        non_test_size = imdb.TRAIN_SIZE + imdb.VALID_SIZE
+        order_size = imdb.TRAIN_SIZE + imdb.VALID_SIZE
     elif name == "satellite":
         load_data = satellite.load_data
         load_interp_features = satellite.load_interp_features
-        non_test_size = satellite.TRAIN_SIZE + satellite.VALID_SIZE
+        order_size = (
+            satellite.TRAIN_SIZE + satellite.VALID_SIZE + satellite.TEST_SIZE
+        )
     elif name == "support2":
         load_data = support2.load_data
         load_interp_features = support2.load_interp_features
-        non_test_size = support2.TRAIN_SIZE + support2.VALID_SIZE
+        order_size = (
+            support2.TRAIN_SIZE + support2.VALID_SIZE + support2.TEST_SIZE
+        )
     elif name == "physionet":
         load_data = physionet.load_data
         load_interp_features = physionet.load_interp_features
-        non_test_size = physionet.TRAIN_SIZE + physionet.VALID_SIZE
+        order_size = physionet.TRAIN_SIZE + physionet.VALID_SIZE
     else:
         raise ValueError(f"Unknown dataset: {name}")
 
-    # Permute training and validation, if necessary.
+    # Generate permutation ordering if necessary.
     order = None
     if permute:
-        order = np.random.permutation(non_test_size)
+        order = np.random.permutation(order_size)
 
     # Load context features and targets.
     context_kwargs = context_kwargs or {}

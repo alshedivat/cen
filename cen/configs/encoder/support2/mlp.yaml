@@ -1,0 +1,5 @@
+network:
+  name: simple_mlp
+  blocks: 1
+  units: 64
+  dropout: 0.2

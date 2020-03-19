@@ -15,8 +15,12 @@
 
 import tensorflow as tf
 
+from cen.losses import survival
+
 
 def get(name, **kwargs):
+    if name == "nll_survival":
+        return survival.NegativeLogLikelihoodSurvival(**kwargs)
     if kwargs:
         return tf.keras.losses.get({"class_name": name, "config": kwargs})
     else:

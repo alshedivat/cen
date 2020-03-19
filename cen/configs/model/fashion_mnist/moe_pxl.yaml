@@ -1,0 +1,13 @@
+dataset:
+  feature_kwargs:
+    feature_type: pixels20x20
+
+model:
+  name: moe
+  kwargs:
+    num_experts: 128
+    expert_kwargs:
+      activation: softmax
+      use_bias: true
+    mixture_kwargs:
+      gate_use_bias: true

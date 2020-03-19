@@ -45,9 +45,18 @@ def get_output_shape(data):
     return data[1].shape[1:]
 
 
-def build(cfg, input_dtypes, input_shapes, output_shape, mode=ModeKeys.TRAIN):
+def build(
+    cfg,
+    input_dtypes,
+    input_shapes,
+    output_shape,
+    mode=ModeKeys.TRAIN,
+    working_dir=None,
+):
     """Builds model and callbacks for training or evaluation."""
     tf.keras.backend.clear_session()
+    if working_dir is None:
+        working_dir = os.getcwd()
 
     # Build model.
     net = networks.get(**cfg.network)
@@ -76,14 +85,14 @@ def build(cfg, input_dtypes, input_shapes, output_shape, mode=ModeKeys.TRAIN):
         if cfg.train.checkpoint_kwargs:
             callbacks.append(
                 tf.keras.callbacks.ModelCheckpoint(
-                    filepath=os.path.join(os.getcwd(), "checkpoint"),
+                    filepath=os.path.join(working_dir, "checkpoint"),
                     **cfg.train.checkpoint_kwargs,
                 )
             )
         if cfg.train.tensorboard:
             callbacks.append(
                 tf.keras.callbacks.TensorBoard(
-                    log_dir=os.path.join(os.getcwd(), "tensorboard"),
+                    log_dir=os.path.join(working_dir, "tensorboard"),
                     **cfg.train.tensorboard,
                 )
             )
@@ -93,6 +102,6 @@ def build(cfg, input_dtypes, input_shapes, output_shape, mode=ModeKeys.TRAIN):
     # Compile model for evaluation or inference.
     else:
         model.compile(loss=loss, optimizer=opt, metrics=metrics_list)
-        checkpoint_path = os.path.join(os.getcwd(), "checkpoint")
+        checkpoint_path = os.path.join(working_dir, "checkpoint")
         model.load_weights(checkpoint_path).expect_partial()
         return model, info

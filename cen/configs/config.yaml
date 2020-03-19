@@ -5,12 +5,5 @@ defaults:
   - model: ???
   - optimizer: ???
 
-ray:
-  init:
-    num_cpus: 8
-    num_gpus: 1
-  remote:
-    num_gpus: 0.25
-
 run:
   seed: 1

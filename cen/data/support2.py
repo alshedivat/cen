@@ -63,8 +63,7 @@ def load_data(
     censorship_indicator=1.0,
     inputs_as_sequences=False,
     inputs_pad_mode="constant",
-    permute=True,
-    seed=42,
+    order=None,
 ):
     """Load and preprocess the SUPPORT2 dataset.
 
@@ -78,11 +77,10 @@ def load_data(
         na_value : float (default: -1.0)
         death_indicator : float (default: 1.0)
         censorship_indicator : float (default: -1.0)
-        permute: bool (default: True)
-        seed : uint (default: 42)
+        order: np.ndarray (default: None)
 
     Returns:
-        (X_train, y_train), (X_valid, y_valid), (X_test, y_test)
+        data: dict of tuples (X, y) of ndarrays
     """
     if datapath is None:
         datapath = "$DATA_PATH/SUPPORT2/support2.csv"
@@ -143,18 +141,21 @@ def load_data(
                 X, [(0, 0), (0, Y.shape[1] - 1), (0, 0)], mode=inputs_pad_mode
             )
 
-    # Shuffle & split the data into sets.
-    if permute:
-        rng = np.random.RandomState(seed)
-        order = rng.permutation(len(X))
+    if order is not None:
         X, Y = X[order], Y[order]
 
     X_train = X[:TRAIN_SIZE]
     y_train = Y[:TRAIN_SIZE]
-    X_valid = X[TRAIN_SIZE : TRAIN_SIZE + VALID_SIZE]
-    y_valid = Y[TRAIN_SIZE : TRAIN_SIZE + VALID_SIZE]
+    X_valid = X[TRAIN_SIZE:-TEST_SIZE]
+    y_valid = Y[TRAIN_SIZE:-TEST_SIZE]
     X_test = X[-TEST_SIZE:]
     y_test = Y[-TEST_SIZE:]
+
+    data = {
+        "train": ({"C": X_train}, y_train),
+        "valid": ({"C": X_valid}, y_valid),
+        "test": ({"C": X_test}, y_test),
+    }
 
     logger.debug(f"X shape: {X_train.shape[1:]}")
     logger.debug(f"Y shape: {y_train.shape[1:]}")
@@ -162,11 +163,11 @@ def load_data(
     logger.debug(f"{len(X_valid)} validation samples")
     logger.debug(f"{len(X_test)} test samples")
 
-    return (X_train, y_train), (X_valid, y_valid), (X_test, y_test)
+    return data
 
 
 def load_interp_features(
-    datapath=None, fill_na="avg", na_value=0.0, permute=True, seed=42
+    datapath=None, fill_na="avg", na_value=0.0, order=None
 ):
     if datapath is None:
         datapath = "$DATA_PATH/SUPPORT2/support2.csv"
@@ -200,18 +201,18 @@ def load_interp_features(
     Z = Z.astype(np.float32)
 
     # Shuffle & split the data into sets
-    if permute:
-        rng = np.random.RandomState(seed)
-        order = rng.permutation(len(Z))
+    if order is not None:
         Z = Z[order]
 
     Z_train = Z[:TRAIN_SIZE]
-    Z_valid = Z[TRAIN_SIZE : TRAIN_SIZE + VALID_SIZE]
+    Z_valid = Z[TRAIN_SIZE:-TEST_SIZE]
     Z_test = Z[-TEST_SIZE:]
+
+    data = {"train": Z_train, "valid": Z_valid, "test": Z_test}
 
     logger.debug(f"Z shape: {Z_train.shape[1:]}")
     logger.debug(f"{Z_train.shape[0]} train samples")
     logger.debug(f"{Z_valid.shape[0]} validation samples")
     logger.debug(f"{Z_test.shape[0]} test samples")
 
-    return Z_train, Z_valid, Z_test
+    return data
